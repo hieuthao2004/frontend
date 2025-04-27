@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import './RepostButton.css'
+// No longer importing component-specific CSS
 
 const RepostButton = ({ postId, initialIsReposted = false, currentUserId }) => {
   const [isReposted, setIsReposted] = useState(initialIsReposted)
@@ -83,42 +83,51 @@ const RepostButton = ({ postId, initialIsReposted = false, currentUserId }) => {
       <button
         onClick={handleRepostAction}
         disabled={loading}
-        className={`repost-button ${isReposted ? 'reposted' : ''}`}
+        className={`action-button repost-button ${isReposted ? 'active' : ''} ${loading ? 'button-loading' : ''}`}
       >
-        <span className="repost-icon">
-          {isReposted ? '🔁' : '↻'}
-        </span>
+        <svg className="button-icon" viewBox="0 0 24 24">
+          <path d="M7,7H17V10.1L21,6.1L17,2V5H5V11H7V7M17,17H7V13.9L3,17.9L7,22V19H19V13H17V17Z" />
+        </svg>
+        <span className="action-button-text">Repost</span>
       </button>
 
       {showRepostModal && (
-        <div className="repost-modal">
-          <div className="repost-modal-content">
-            <h3>Add a comment to your repost</h3>
-            {error && <div className="repost-error">{error}</div>}
-            <textarea
-              value={repostContent}
-              onChange={(e) => setRepostContent(e.target.value)}
-              placeholder="Add your thoughts... (optional)"
-              maxLength={280}
-            />
-            <div className="repost-modal-actions">
+        <div className="modal-overlay">
+          <div className="create-post-modal">
+            <div className="modal-header">
               <button 
+                className="modal-close-btn" 
                 onClick={() => {
                   setShowRepostModal(false)
                   setError(null)
                   setRepostContent('')
                 }}
-                className="cancel-button"
               >
                 Cancel
               </button>
-              <button 
-                onClick={handleSubmitRepost}
-                className="submit-button"
-                disabled={loading}
-              >
-                {loading ? 'Reposting...' : 'Repost'}
-              </button>
+              <h3 className="modal-title">Repost</h3>
+              <div style={{width: '50px'}}></div> {/* Spacer for alignment */}
+            </div>
+
+            <div className="modal-content">
+              {error && <div className="error-message">{error}</div>}
+              <textarea
+                value={repostContent}
+                onChange={(e) => setRepostContent(e.target.value)}
+                placeholder="Add your thoughts... (optional)"
+                maxLength={280}
+                className="modal-textarea"
+              />
+              <div className="modal-tools">
+                <div></div> {/* Spacer for alignment */}
+                <button 
+                  onClick={handleSubmitRepost}
+                  className="modal-post-btn"
+                  disabled={loading}
+                >
+                  {loading ? 'Reposting...' : 'Repost'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

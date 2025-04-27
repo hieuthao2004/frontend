@@ -1,0 +1,275 @@
+/* Styling for action buttons (Like, Repost, Save, Follow) */
+
+/* Common button styling */
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.action-button:hover {
+  color: var(--primary-color);
+  background-color: rgba(29, 161, 242, 0.1);
+}
+
+.action-button .button-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.action-button-text {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .action-button-text {
+    display: inline;
+  }
+}
+
+/* Active state styling for different buttons */
+.action-button.active {
+  color: var(--primary-color);
+}
+
+.like-button.active {
+  color: var(--accent-color);
+}
+
+.like-button.active .button-icon {
+  fill: var(--accent-color);
+}
+
+.repost-button.active {
+  color: var(--success-color);
+}
+
+.repost-button.active .button-icon {
+  fill: var(--success-color);
+}
+
+.save-button.active {
+  color: var(--primary-color);
+}
+
+.save-button.active .button-icon {
+  fill: var(--primary-color);
+}
+
+/* Button loading state */
+.button-loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Follow button styling */
+.follow-button {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: var(--text-primary);
+  color: var(--background-primary);
+  border: none;
+}
+
+.follow-button:hover {
+  opacity: 0.9;
+}
+
+.follow-button.following {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.follow-button.following:hover {
+  background-color: rgba(224, 36, 94, 0.1);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+.follow-button.following:hover::before {
+  content: "Unfollow";
+}
+
+.follow-button.following:hover span {
+  display: none;
+}
+
+/* Primary action button */
+.primary-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primary-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary action button */
+.secondary-button {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.secondary-button:hover {
+  background-color: var(--background-secondary);
+}
+
+/* Danger button */
+.danger-button {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.danger-button:hover {
+  opacity: 0.9;
+}
+
+/* Icon button */
+.icon-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.icon-button:hover {
+  background-color: var(--background-secondary);
+  color: var(--primary-color);
+}
+
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Toggle button */
+.toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+  background-color: var(--background-secondary);
+}
+
+.toggle-button.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.toggle-indicator {
+  width: 36px;
+  height: 20px;
+  background-color: var(--border-color);
+  border-radius: 10px;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.toggle-indicator::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+
+.toggle-button.active .toggle-indicator {
+  background-color: var(--primary-color);
+}
+
+.toggle-button.active .toggle-indicator::after {
+  transform: translateX(16px);
+}
+
+/* Button animations */
+@keyframes likeAnimation {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.like-button.active .button-icon {
+  animation: likeAnimation 0.3s ease;
+}
+
+@keyframes repostAnimation {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg) scale(1.1); }
+}
+
+.repost-button.active .button-icon {
+  animation: repostAnimation 0.5s ease;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .action-button-text {
+    display: none;
+  }
+  
+  .action-button {
+    padding: 8px;
+  }
+}

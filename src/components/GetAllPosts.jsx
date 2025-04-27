@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import LikeButton from './LikeButton'
 import RepostButton from './RepostButton'
 import SaveButton from './SaveButton'
-import './GetAllPosts.css'
+// Import styles from our shared styles folder instead of component-specific CSS
+// import './GetAllPosts.css'
 
 const GetAllPosts = ({ currentUserId }) => {
   const [posts, setPosts] = useState([])
@@ -29,39 +30,56 @@ const GetAllPosts = ({ currentUserId }) => {
     fetchPosts()
   }, [])
 
-  if (loading) return <div>Loading posts...</div>
+  if (loading) return <div className="loading-indicator">Loading posts...</div>
+
+  if (posts.length === 0) {
+    return <div className="no-posts-message">No posts found. Start following people to see their posts!</div>
+  }
 
   return (
-    <div className="posts-container">
-      {posts.map((post) => (
-        <div key={post.p_id} className="post-card">
-          <div className="post-header">
-            <div className="post-creator-info">
-              <h3 onClick={() => navigate(`/profile/${post.p_creater}`)}>
-                {post.p_creater}
-              </h3>
+    <div className="post-feed-container">
+      <div className="post-feed">
+        {posts.map((post) => (
+          <div key={post.p_id} className="post-item">
+            <div className="post-header">
+              <div className="post-author-avatar">
+                <div className="default-avatar">
+                  {post.p_creater.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <div className="post-info">
+                <span 
+                  className="post-author-name" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/profile/${post.p_creater}`);
+                  }}
+                >
+                  {post.p_creater}
+                </span>
+                <span className="post-timestamp">{new Date(post.p_create_at).toLocaleString()}</span>
+              </div>
             </div>
-            <small>{new Date(post.p_create_at).toLocaleString()}</small>
+            <p className="post-content">{post.p_content}</p>
+            <div className="post-actions">
+              <LikeButton 
+                postId={post.p_id}
+                initialIsLiked={post.isLiked}
+                currentUserId={currentUserId}
+              />
+              <RepostButton 
+                postId={post.p_id}
+                initialIsReposted={post.isReposted}
+                currentUserId={currentUserId}
+              />
+              <SaveButton
+                postId={post.p_id}
+                initialIsSaved={post.isSaved}
+              />
+            </div>
           </div>
-          <p className="post-content">{post.p_content}</p>
-          <div className="post-actions">
-            <LikeButton 
-              postId={post.p_id}  // Use p_id from post data
-              initialIsLiked={post.isLiked}
-              currentUserId={currentUserId}
-            />
-            <RepostButton 
-              postId={post.p_id}
-              initialIsReposted={post.isReposted}
-              currentUserId={currentUserId}
-            />
-            <SaveButton
-              postId={post.p_id}
-              initialIsSaved={post.isSaved}
-            />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

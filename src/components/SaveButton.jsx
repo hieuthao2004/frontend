@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import './SaveButton.css'
 
 const SaveButton = ({ postId, initialIsSaved = false }) => {
   const [isSaved, setIsSaved] = useState(initialIsSaved)
@@ -52,13 +51,18 @@ const SaveButton = ({ postId, initialIsSaved = false }) => {
     <button
       onClick={handleSaveAction}
       disabled={loading}
-      className={`save-button ${isSaved ? 'saved' : ''}`}
+      className={`action-button save-button ${isSaved ? 'active' : ''} ${loading ? 'button-loading' : ''}`}
       title={isSaved ? 'Remove from saved' : 'Save post'}
     >
-      <span className="save-icon">
-        {isSaved ? '📥' : '🔖'}
-      </span>
-      {error && <div className="save-error">{error}</div>}
+      <svg className="button-icon" viewBox="0 0 24 24">
+        {isSaved ? (
+          <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5A2,2 0 0,0 17,3Z" />
+        ) : (
+          <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5A2,2 0 0,0 17,3M17,18L12,15.82L7,18V5H17V18Z" />
+        )}
+      </svg>
+      <span className="action-button-text">Save</span>
+      {error && <div className="error-message">{error}</div>}
     </button>
   )
 }

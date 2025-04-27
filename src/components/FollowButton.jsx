@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import './FollowButton.css'
 
 const FollowButton = ({ targetUserId, currentUserId, initialIsFollowing = false }) => {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
@@ -40,7 +39,7 @@ const FollowButton = ({ targetUserId, currentUserId, initialIsFollowing = false 
     <button
       onClick={handleFollowAction}
       disabled={loading}
-      className={`follow-button ${isFollowing ? 'following' : ''} ${loading ? 'loading' : ''}`}
+      className={`follow-button ${isFollowing ? 'following' : ''} ${loading ? 'button-loading' : ''}`}
     >
       {loading ? 'Processing...' : isFollowing ? 'Following' : 'Follow'}
     </button>

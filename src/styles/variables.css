@@ -1,0 +1,76 @@
+/* CSS Variables for theme and styling */
+
+/* Theme variables */
+:root {
+  /* Color scheme */
+  --primary-color: #1DA1F2;
+  --primary-color-dark: #0D8BD9;
+  --accent-color: #F91880;
+  --error-color: #E0245E;
+  --success-color: #17BF63;
+  
+  /* Light theme (default) */
+  --background-primary: #FFFFFF;
+  --background-secondary: #F7F9FA;
+  --background-tertiary: #EFF3F4;
+  --feed-border-color: #EFF3F4;
+  --text-primary: #0F1419;
+  --text-secondary: #536471;
+  --text-tertiary: #8899A6;
+  --border-color: #E1E8ED;
+  
+  /* Shadow values */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-primary: #15202B;
+    --background-secondary: #1E2732;
+    --background-tertiary: #263340;
+    --feed-border-color: #38444D;
+    --text-primary: #FFFFFF;
+    --text-secondary: #8899A6;
+    --text-tertiary: #536471;
+    --border-color: #38444D;
+  }
+}
+
+/* Support for dark mode preference via class */
+.dark-theme {
+  --background-primary: #15202B;
+  --background-secondary: #1E2732;
+  --background-tertiary: #263340;
+  --feed-border-color: #38444D;
+  --text-primary: #FFFFFF;
+  --text-secondary: #8899A6;
+  --text-tertiary: #536471;
+  --border-color: #38444D;
+}
+
+/* Support for light mode preference via class */
+.light-theme {
+  --background-primary: #FFFFFF;
+  --background-secondary: #F7F9FA;
+  --background-tertiary: #EFF3F4;
+  --feed-border-color: #EFF3F4;
+  --text-primary: #0F1419;
+  --text-secondary: #536471;
+  --text-tertiary: #8899A6;
+  --border-color: #E1E8ED;
+}
