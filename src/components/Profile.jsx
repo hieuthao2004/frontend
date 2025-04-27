@@ -8,6 +8,7 @@ const Profile = ({ userData, isOwnProfile }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userPosts, setUserPosts] = useState([]);
   const navigate = useNavigate();
   console.log(userData);
   
@@ -57,12 +58,34 @@ const Profile = ({ userData, isOwnProfile }) => {
     }
   }, [username, userData, isOwnProfile]);
 
+  const fetchUserPosts = useCallback(async (username) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/profile/@${username}/posts`,
+        { withCredentials: true }
+      );
+      
+      if (response.data.posts) {
+        setUserPosts(response.data.posts);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user posts:', error);
+      setError('Failed to load user posts');
+    }
+  }, []);
+
   useEffect(() => {
     if (userData === undefined) {
       return; // Wait for userData to be available
     }
     fetchProfile();
   }, [fetchProfile, userData]);
+
+  useEffect(() => {
+    if (profile?.username) {
+      fetchUserPosts(profile.username);
+    }
+  }, [profile, fetchUserPosts]);
 
   if (loading) return <div className="profile-loading">Loading profile...</div>;
   if (error) return <div className="profile-error">Error: {error}</div>;
@@ -72,14 +95,13 @@ const Profile = ({ userData, isOwnProfile }) => {
     <div className="profile-container">
       <div className="profile-header">
         <div className="profile-avatar">
-          <img 
-            src={profile.avatar || '/default-avatar.png'} 
-            alt={`${profile.username}'s avatar`} 
-            className="avatar-image"
-            onError={(e) => {
-              e.target.src = '/default-avatar.png';
-            }}
-          />
+          {profile.avatar && (
+            <img 
+              src={profile.avatar}
+              alt={`${profile.username}'s avatar`} 
+              className="avatar-image"
+            />
+          )}
         </div>
         <div className="profile-info">
           <h1>{profile.username}</h1>
@@ -90,6 +112,31 @@ const Profile = ({ userData, isOwnProfile }) => {
             <p className="profile-joined">
               Joined: {profile.createAt.toLocaleDateString()}
             </p>
+          )}
+        </div>
+      </div>
+      
+      <div className="user-posts-section">
+        <h2>Posts</h2>
+        <div className="posts-grid">
+          {userPosts.length === 0 ? (
+            <p className="no-posts">No posts yet</p>
+          ) : (
+            userPosts.map(post => (
+              <div key={post.p_id} className="post-card">
+                <div className="post-header">
+                  <small>{new Date(post.p_create_at).toLocaleString()}</small>
+                </div>
+                <p className="post-content">{post.p_content}</p>
+                {post.p_image_url && (
+                  <img 
+                    src={post.p_image_url} 
+                    alt="Post content" 
+                    className="post-image"
+                  />
+                )}
+              </div>
+            ))
           )}
         </div>
       </div>

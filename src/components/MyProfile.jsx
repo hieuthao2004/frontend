@@ -1,68 +1,86 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import './MyProfile.css'
 
+// Thêm biến cho default avatar
+const DEFAULT_AVATAR = '/images/default-avatar.png'
+
 const MyProfile = ({ userData }) => {
   const [profile, setProfile] = useState(null)
+  const [userPosts, setUserPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
 
-  // Add debug logging
-  useEffect(() => {
-    console.log('MyProfile userData:', userData)
-    console.log('MyProfile user:', userData?.user)
-  }, [userData])
+  const fetchProfile = useCallback(async () => {
+    try {
+      let targetUsername;
+      
+      if (!userData?.user?.username) {
+        throw new Error('User data not loaded')
+      }
+      targetUsername = userData.user.username
 
-  useEffect(() => {
-    const fetchMyProfile = async () => {
-      if (!userData || !userData.user) {
-        setError('User data not loaded')
-        setLoading(false)
-        return
+      console.log('Fetching profile for:', targetUsername)
+
+      const profileResponse = await axios.get(`http://localhost:3001/api/profile/@${targetUsername}`, {
+        withCredentials: true
+      })
+
+      if (!profileResponse.data?.userData) {
+        throw new Error('Profile data not found')
       }
 
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/api/profile/@${userData.user.username}`,
-          { withCredentials: true }
-        )
-        
-        console.log('Profile response:', response.data)
+      setProfile(profileResponse.data.userData)
 
-        if (response.data?.userData) {
-          setProfile(response.data.userData)
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-        setError('Failed to load profile data')
-      } finally {
-        setLoading(false)
+      // Fetch user's posts
+      const postsResponse = await axios.get('http://localhost:3001/api/profile/posts', {
+        withCredentials: true
+      })
+
+      if (postsResponse.data?.allUserPosts) {
+        setUserPosts(postsResponse.data.allUserPosts)
       }
+
+    } catch (error) {
+      console.error('Error in profile:', error)
+      setError(error.message || 'Failed to load profile')
+    } finally {
+      setLoading(false)
     }
-
-    fetchMyProfile()
   }, [userData])
 
-  // Show loading and error states
-  if (loading) {
-    return <div className="loading-state">Loading profile...</div>
-  }
+  useEffect(() => {
+    if (userData === undefined) {
+      return // Wait for userData to be available
+    }
+    fetchProfile()
+  }, [fetchProfile, userData])
 
-  if (error) {
-    return <div className="error-state">Error: {error}</div>
-  }
+  if (loading) return <div className="loading-state">Loading profile...</div>
+  if (error) return <div className="error-state">Error: {error}</div>
 
   return (
     <div className="my-profile-container">
       <div className="profile-header">
         <div className="profile-avatar">
-          <img 
-            src={profile?.u_avatar || '/default-avatar.png'} 
-            alt="Profile" 
-            onError={(e) => e.target.src = '/default-avatar.png'}
-          />
+          {profile?.u_avatar ? (
+            <img 
+              src={profile.u_avatar}
+              alt={`${profile.u_username}'s avatar`}
+              onError={(e) => {
+                // Chỉ set default một lần để tránh vòng lặp
+                e.target.onerror = null
+                e.target.src = DEFAULT_AVATAR
+              }}
+            />
+          ) : (
+            <img 
+              src={DEFAULT_AVATAR}
+              alt="Default avatar"
+            />
+          )}
         </div>
         <div className="profile-info">
           <h1>{profile?.u_username}</h1>
@@ -70,7 +88,7 @@ const MyProfile = ({ userData }) => {
           <p className="bio">{profile?.u_bio || 'No bio yet'}</p>
           <div className="stats">
             <div className="stat">
-              <span className="count">{profile?.posts?.length || 0}</span>
+              <span className="count">{userPosts.length}</span>
               <span className="label">Posts</span>
             </div>
             <div className="stat">
@@ -82,6 +100,31 @@ const MyProfile = ({ userData }) => {
               <span className="label">Following</span>
             </div>
           </div>
+        </div>
+      </div>
+      
+      <div className="user-posts-section">
+        <h2>My Posts</h2>
+        <div className="posts-grid">
+          {userPosts.length === 0 ? (
+            <p className="no-posts">No posts yet</p>
+          ) : (
+            userPosts.map(post => (
+              <div key={post.p_id} className="post-card">
+                <div className="post-header">
+                  <small>{new Date(post.p_create_at).toLocaleString()}</small>
+                </div>
+                <p className="post-content">{post.p_content}</p>
+                {post.p_image_url && (
+                  <img 
+                    src={post.p_image_url} 
+                    alt="Post content" 
+                    className="post-image"
+                  />
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
