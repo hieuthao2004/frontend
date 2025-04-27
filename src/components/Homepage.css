@@ -1,0 +1,12 @@
+.loading-state,
+.error-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+}
+
+.error-state {
+  color: #e74c3c;
+}

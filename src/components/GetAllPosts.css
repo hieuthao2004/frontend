@@ -1,0 +1,16 @@
+.post-creator-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+/* ...existing styles... */
