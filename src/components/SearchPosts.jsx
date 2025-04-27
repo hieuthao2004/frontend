@@ -69,42 +69,37 @@ const SearchPosts = () => {
           searchQuery && !loading ? 
             <div className="search-empty-state">No posts found</div> : null
         ) : (
-          <>
+          <div className="post-feed">
             {searchResults.map((post) => (
-              <div 
-                key={post.objectID || post.p_id} 
-                className="search-post-item"
-                onClick={() => navigate(`/post/${post.p_id || post.objectID}`)}
-              >
-                <div className="search-post-header">
-                  <div className="search-result-avatar">
-                    {post.p_creater?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <div className="search-result-info">
-                    <div className="search-result-name">
-                      {post.p_creater}
+              <div key={post.objectID || post.p_id} className="post-item">
+                <div className="post-header">
+                  <div className="post-author-avatar">
+                    <div className="default-avatar">
+                      {post.p_creater ? post.p_creater.charAt(0).toUpperCase() : '?'}
                     </div>
-                    <div className="search-post-date">
+                  </div>
+                  <div className="post-info">
+                    <h3 className="post-author-name">{post.p_creater}</h3>
+                    <small className="post-timestamp">
                       {new Date(post.p_create_at).toLocaleString()}
-                    </div>
+                    </small>
                   </div>
                 </div>
-                <div className="search-post-content">
-                  {post.p_content}
-                </div>
+                <p className="post-content">{post.p_content}</p>
                 {post.p_image_url && post.p_image_url !== "" && (
-                  <img 
-                    src={post.p_image_url} 
-                    alt="Post content" 
-                    className="post-image"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  <div className="post-image">
+                    <img 
+                      src={post.p_image_url} 
+                      alt="Post content" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             ))}
-          </>
+          </div>
         )}
       </div>
     </div>
