@@ -8,46 +8,23 @@ const CreatePost = () => {
   const [previewUrl, setPreviewUrl] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const socketRef = useRef(null)
+  const socketRef = useRef()
 
   // Initialize socket connection
   useEffect(() => {
     socketRef.current = io('http://localhost:3001')
     
-    // Listen for post creation confirmation
-    socketRef.current.on('post_created', (post) => {
-      console.log('Post created via socket:', post)
-      setIsSubmitting(false)
-      setContent('')
-      setFile(null)
-      setPreviewUrl('')
-      setMessage('Post created successfully!')
-      
-      // Auto-clear success message
-      setTimeout(() => setMessage(''), 3000)
-    })
-    
-    // Listen for errors
-    socketRef.current.on('post_error', (error) => {
-      console.error('Error via socket:', error)
-      setIsSubmitting(false)
-      setMessage(error.message || 'Failed to create post')
-    })
-    
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect()
-      }
+      if (socketRef.current) socketRef.current.disconnect()
     }
   }, [])
 
-  // Handle file selection and preview
+  // Handle file input change
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
     if (selectedFile) {
       setFile(selectedFile)
-      
-      // Create preview
+      // Create preview URL
       const reader = new FileReader()
       reader.onload = () => {
         setPreviewUrl(reader.result)
@@ -55,8 +32,8 @@ const CreatePost = () => {
       reader.readAsDataURL(selectedFile)
     }
   }
-  
-  // Clear selected image
+
+  // Remove selected image
   const handleRemoveImage = () => {
     setFile(null)
     setPreviewUrl('')
@@ -73,60 +50,71 @@ const CreatePost = () => {
     setIsSubmitting(true)
 
     try {
+      // Create FormData to handle file upload
+      const formData = new FormData()
+      formData.append('content', content.trim())
+      
       if (file) {
-        // For files, use socket.io with binary support
-        // Convert the file to base64 for socket transmission
-        const reader = new FileReader()
-        
-        reader.onload = () => {
-          // Get base64 data
-          const base64File = reader.result
-          
-          // Emit the post data with the file
-          socketRef.current.emit('create_post', {
-            content: content.trim(),
-            image: {
-              data: base64File,
-              name: file.name,
-              type: file.type
-            }
-          })
-        }
-        
-        reader.readAsDataURL(file)
-      } else {
-        // For text-only posts, emit without an image
-        socketRef.current.emit('create_post', {
-          content: content.trim()
-        })
+        formData.append('image', file)
       }
       
-      // Don't reset the form yet, wait for confirmation from server
-      console.log('Post data sent via socket')
+      console.log('Sending post data with' + (file ? '' : 'out') + ' image')
       
+      const response = await axios.post(
+        'http://localhost:3001/api/create_post', 
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+
+      console.log('Server response:', response.data)
+      
+      if (response.status === 200) {
+        // Emit event with new post data
+        socketRef.current.emit('new_post', response.data.post)
+        
+        // Reset form
+        setContent('')
+        setFile(null)
+        setPreviewUrl('')
+        setMessage('Post created successfully!')
+        
+        // Auto-clear success message
+        setTimeout(() => setMessage(''), 3000)
+      }
     } catch (error) {
-      console.error('Error sending data:', error)
-      setMessage('Failed to create post')
+      console.error('Error details:', error.response?.data)
+      setMessage(error.response?.data?.message || 'Failed to create post')
+    } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
     <div className="create-post">
-      {message && <p className={message.includes('successfully') ? 'success-message' : 'error-message'}>{message}</p>}
+      {message && (
+        <p className={message.includes('successfully') ? 'success' : 'error'}>
+          {message}
+        </p>
+      )}
+      
       <form onSubmit={handleSubmit}>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's on your mind?"
           required
-          disabled={isSubmitting}
         />
         
         <div className="file-upload">
           <input
             type="file"
             id="image-upload"
+            name="image"  // Important: must match backend field name
             accept="image/*"
             onChange={handleFileChange}
             disabled={isSubmitting}
@@ -134,27 +122,13 @@ const CreatePost = () => {
           <label htmlFor="image-upload">
             {file ? 'Change Image' : 'Add Image'}
           </label>
-          
-          {previewUrl && (
-            <div className="image-preview-wrapper">
-              <img src={previewUrl} alt="Preview" className="image-preview" />
-              <button 
-                type="button" 
-                className="remove-image" 
-                onClick={handleRemoveImage}
-                disabled={isSubmitting}
-              >
-                ✕
-              </button>
-            </div>
-          )}
         </div>
         
         <button 
           type="submit" 
-          disabled={isSubmitting || !content.trim()}
+          disabled={isSubmitting}
         >
-          {isSubmitting ? 'Creating Post...' : 'Create Post'}
+          {isSubmitting ? 'Posting...' : 'Create Post'}
         </button>
       </form>
     </div>

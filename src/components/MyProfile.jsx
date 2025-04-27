@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import './MyProfile.css'
+import EditProfile from './EditProfile'
+import AvatarUpload from './AvatarUpload'
 
 // Thêm biến cho default avatar
 const DEFAULT_AVATAR = '/images/default-avatar.png'
@@ -11,6 +13,8 @@ const MyProfile = ({ userData }) => {
   const [userPosts, setUserPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showEditProfile, setShowEditProfile] = useState(false)
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false)
   const navigate = useNavigate()
 
   const fetchProfile = useCallback(async () => {
@@ -58,13 +62,31 @@ const MyProfile = ({ userData }) => {
     fetchProfile()
   }, [fetchProfile, userData])
 
+  const handleProfileUpdate = (updatedProfile) => {
+    setProfile(prev => ({
+      ...prev,
+      ...updatedProfile
+    }))
+  }
+
+  const handleAvatarUpdate = (newAvatarUrl) => {
+    setProfile(prev => ({
+      ...prev,
+      avatar: newAvatarUrl
+    }))
+  }
+
   if (loading) return <div className="loading-state">Loading profile...</div>
   if (error) return <div className="error-state">Error: {error}</div>
 
   return (
     <div className="my-profile-container">
       <div className="profile-header">
-        <div className="profile-avatar">
+        <div 
+          className="profile-avatar"
+          onClick={() => setShowAvatarUpload(true)}
+          title="Click to update avatar"
+        >
           {profile?.u_avatar ? (
             <img 
               src={profile.u_avatar}
@@ -100,6 +122,12 @@ const MyProfile = ({ userData }) => {
               <span className="label">Following</span>
             </div>
           </div>
+          <button 
+            onClick={() => setShowEditProfile(true)}
+            className="edit-profile-button"
+          >
+            Edit Profile
+          </button>
         </div>
       </div>
       
@@ -127,6 +155,21 @@ const MyProfile = ({ userData }) => {
           )}
         </div>
       </div>
+
+      {showEditProfile && (
+        <EditProfile
+          profile={profile}
+          onUpdate={handleProfileUpdate}
+          onClose={() => setShowEditProfile(false)}
+        />
+      )}
+
+      {showAvatarUpload && (
+        <AvatarUpload
+          onUpdate={handleAvatarUpdate}
+          onClose={() => setShowAvatarUpload(false)}
+        />
+      )}
     </div>
   )
 }
